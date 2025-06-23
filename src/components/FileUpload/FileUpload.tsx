@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, Progress, Space } from 'antd';
+import { Upload, Progress, Space, Alert } from 'antd';
 import { InboxOutlined, FileTextOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import type { FileUploadProps } from '../../types/components';
@@ -8,6 +8,20 @@ const { Dragger } = Upload;
 
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing }) => {
   const [progressPercent, setProgressPercent] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  // Função para validar se o arquivo é CSV
+  const validateFileExtension = (file: File): boolean => {
+    const fileName = file.name.toLowerCase();
+    return fileName.endsWith('.csv');
+  };
+
+  // Função para mostrar erro
+  const showError = (message: string) => {
+    setError(message);
+    // Remove o erro após 5 segundos
+    setTimeout(() => setError(null), 5000);
+  };
 
   // Simular progresso durante o processamento
   useEffect(() => {
@@ -38,11 +52,41 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
     accept: '.csv',
     showUploadList: false,
     beforeUpload: (file: File) => {
+      // Validar extensão do arquivo
+      if (!validateFileExtension(file)) {
+        showError('Apenas arquivos com extensão .csv são permitidos!');
+        return false;
+      }
+      
+      // Limpar erro se existir
+      setError(null);
       onFileSelect(file);
       return false; // Prevent default upload
     },
     onDrop(e: React.DragEvent<HTMLDivElement>) {
       console.log('Dropped files', e.dataTransfer.files);
+      
+      // Validar arquivos arrastados
+      const files = Array.from(e.dataTransfer.files);
+      
+      if (files.length === 0) {
+        showError('Nenhum arquivo foi detectado!');
+        return;
+      }
+
+      if (files.length > 1) {
+        showError('Apenas um arquivo por vez é permitido!');
+        return;
+      }
+
+      // Validar extensão do primeiro arquivo
+      if (!validateFileExtension(files[0])) {
+        showError('Apenas arquivos com extensão .csv são permitidos!');
+        return;
+      }
+
+      // Limpar erro se existir
+      setError(null);
     },
   };
 
@@ -119,20 +163,35 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
 
   // 📤 ESTADO NORMAL - Interface de Upload
   return (
-    <Dragger 
-      {...uploadProps} 
-      style={{ marginBottom: 24 }}
-      disabled={isProcessing}
-    >
-      <p className="ant-upload-drag-icon">
-        <InboxOutlined style={{ color: '#1890ff' }} />
-      </p>
-      <p className="ant-upload-text">
-        Clique ou arraste um arquivo CSV para esta área
-      </p>
-      <p className="ant-upload-hint">
-        O arquivo deve conter uma coluna com UUIDs (entre 5 e 1000 registros)
-      </p>
-    </Dragger>
+    <>
+      {/* Alerta de Erro */}
+      {error && (
+        <Alert
+          message="Erro no arquivo"
+          description={error}
+          type="error"
+          showIcon
+          closable
+          onClose={() => setError(null)}
+          style={{ marginBottom: 16 }}
+        />
+      )}
+
+      <Dragger 
+        {...uploadProps} 
+        style={{ marginBottom: 24 }}
+        disabled={isProcessing}
+      >
+        <p className="ant-upload-drag-icon">
+          <InboxOutlined style={{ color: '#1890ff' }} />
+        </p>
+        <p className="ant-upload-text">
+          Clique ou arraste um arquivo CSV para esta área
+        </p>
+        <p className="ant-upload-hint">
+          O arquivo deve conter uma coluna com UUIDs (entre 5 e 1000 registros)
+        </p>
+      </Dragger>
+    </>
   );
 };
