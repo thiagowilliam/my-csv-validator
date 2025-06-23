@@ -3,7 +3,7 @@ import { Layout, Alert, Spin, Card, Tag, notification } from 'antd';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { apiService } from '../services/apiService';
 import { calculateStats, getValidUUIDs } from '../utils/csvParser';
-import { SUCCESS_MESSAGES } from '../constants/validation';
+import { SUCCESS_MESSAGES, VALIDATION_RULES } from '../constants/validation';
 import type { APIPayload } from '../types';
 
 import { Header } from '../components/Header/Header';
@@ -11,6 +11,7 @@ import { FileUpload } from '../components/FileUpload/FileUpload';
 import { StatsCards } from '../components/StatsCards/StatsCards';
 import { DataTable } from '../components/DataTable/DataTable';
 import { ActionButtons } from '../components/ActionButtons/ActionButtons';
+import { ValidationAlert } from '../components/ValidationAlert/ValidationAlert';
 
 const { Content } = Layout;
 
@@ -25,7 +26,9 @@ export const CSVUploadPage: React.FC = () => {
     isProcessing,
     processFile,
     setError,
-    setSuccess
+    setSuccess,
+    validationError,
+    clearValidationError
   } = useFileUpload();
 
   const handleSendToBackend = async (): Promise<void> => {
@@ -89,7 +92,19 @@ export const CSVUploadPage: React.FC = () => {
           </Spin>
         </Card>
 
-        {error && (
+        {/* Alertas de Validação Específicos */}
+        {validationError && (
+          <ValidationAlert
+            type={validationError.type || 'general'}
+            count={validationError.count}
+            minRecords={VALIDATION_RULES.MIN_RECORDS}
+            maxRecords={VALIDATION_RULES.MAX_RECORDS}
+            onClose={clearValidationError}
+          />
+        )}
+
+        {/* Alertas Gerais */}
+        {error && !validationError && (
           <Alert
             message="Erro no processamento"
             description={error}

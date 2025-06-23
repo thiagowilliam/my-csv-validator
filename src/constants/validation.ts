@@ -9,8 +9,8 @@ export const VALIDATION_RULES: ValidationRules = {
 
 export const ERROR_MESSAGES: Messages = {
   INVALID_FILE_TYPE: 'Por favor, selecione um arquivo CSV válido.',
-  MIN_RECORDS_ERROR: `O arquivo deve conter pelo menos ${VALIDATION_RULES.MIN_RECORDS} UUIDs.`,
-  MAX_RECORDS_ERROR: `O arquivo não pode conter mais de ${VALIDATION_RULES.MAX_RECORDS} UUIDs.`,
+  MIN_RECORDS_ERROR: `Arquivo muito pequeno! O arquivo deve conter pelo menos ${VALIDATION_RULES.MIN_RECORDS} UUIDs, mas contém apenas {count} registros.`,
+  MAX_RECORDS_ERROR: `Arquivo muito grande! O arquivo contém {count} registros, mas o limite máximo é ${VALIDATION_RULES.MAX_RECORDS} UUIDs.`,
   BACKEND_ERROR: 'Erro ao enviar dados para o backend.'
 };
 

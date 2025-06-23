@@ -26,11 +26,16 @@ export const parseCSV = (csvText: string): UUIDRecord[] => {
 };
 
 export const validateFileSize = (data: UUIDRecord[]): void => {
-  if (data.length < VALIDATION_RULES.MIN_RECORDS) {
-    throw new Error(ERROR_MESSAGES.MIN_RECORDS_ERROR);
+  const count = data.length;
+  
+  if (count < VALIDATION_RULES.MIN_RECORDS) {
+    const message = ERROR_MESSAGES.MIN_RECORDS_ERROR.replace('{count}', count.toString());
+    throw new Error(message);
   }
-  if (data.length > VALIDATION_RULES.MAX_RECORDS) {
-    throw new Error(ERROR_MESSAGES.MAX_RECORDS_ERROR);
+  
+  if (count > VALIDATION_RULES.MAX_RECORDS) {
+    const message = ERROR_MESSAGES.MAX_RECORDS_ERROR.replace('{count}', count.toString());
+    throw new Error(message);
   }
 };
 
